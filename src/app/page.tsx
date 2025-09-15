@@ -1,11 +1,28 @@
+"use client";
+
 import Image from "next/image";
 import Chat from "./Chat";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../app/context/AuthContext"; // adjust if needed
 
 export default function Home() {
+  const router = useRouter();
+  const { email } = useAuth();
+
+  useEffect(() => {
+    if (!email) {
+      router.push("/login");
+    }
+  }, [email, router]);
+
+  // Prevent showing content before auth check
+  if (!email) return null; // or <div>Loading...</div>
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Chat/>
+        <Chat />
         <Image
           className="dark:invert"
           src="/image.png"
@@ -16,7 +33,7 @@ export default function Home() {
         />
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
-            This POC project create for{" "}
+            This POC project created for{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
               Wendys
             </code>
@@ -25,7 +42,7 @@ export default function Home() {
           <li className="tracking-[-.01em]">
             Click the icon in lower bottom to proceed
           </li>
-        </ol>          
+        </ol>
       </main>
     </div>
   );

@@ -84,11 +84,15 @@ export async function POST(req: Request) {
     );
     
     const response_msg = await response.text();
-    const jsonString = response_msg.slice(6)
-    console.log("Parsed response:", jsonString);
+    const start = response_msg.indexOf('data');
+    const end = response_msg.lastIndexOf('}');
+    const jsonString = response_msg.slice(start, end + 1);
+    // const jsonString = response_msg.slice(6)
+    console.log("jsonString:", jsonString.trim());
     const data = JSON.parse(jsonString.trim());
-    const responseText = data?.content?.parts?.[0]?.text?.trim();
-    console.log("Parsed response:", responseText);
+    const responseText = data?.content?.parts?.[0]?.text?.trim() ?? data?.content?.parts?.response?.error_message;
+    console.log("responseText:", responseText);
+
     
     return  NextResponse.json(responseText);
   } catch (err: any) {
