@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     // const client = await auth.getClient();
     // const tokenResponse = await client.getAccessToken();
 
-    const targetAudience = "https://adktestsecured-1010458825042.us-central1.run.app";
+    const targetAudience = "https://adktest-new-499439765550.us-central1.run.app";
     const client = await auth.getIdTokenClient(targetAudience);
     // const tokenResponse = await client.getAccessToken();
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   //   // const token = tokenResponse.token;
 
     const session = await fetch(
-    "https://adktestsecured-1010458825042.us-central1.run.app/apps/multi_tool_agent/users/user_123/sessions/session_abc",
+    "https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_123/sessions/session_abc",
     {
       method: "POST",
       headers: {
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   // const sessionId = data?.output?.id
     // Call Vertex AI 
     const response = await fetch(
-      "https://adktestsecured-1010458825042.us-central1.run.app/run_sse",
+      "https://adktest-new-499439765550.us-central1.run.app/run_sse",
       {
         method: "POST",
         headers: {
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          "app_name": "multi_tool_agent",
+          "app_name": "wendys_agent_new6",
           "user_id": "user_123",
           "session_id": "session_abc",
           "new_message": {
@@ -84,13 +84,26 @@ export async function POST(req: Request) {
     );
     
     const response_msg = await response.text();
-    const start = response_msg.indexOf('data');
-    const end = response_msg.lastIndexOf('}');
-    const jsonString = response_msg.slice(start, end + 1);
+    function getFirstDataObject(inputString: string) {
+      const lines = inputString.split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('data:')) {
+          const jsonPart = trimmed.replace(/^data:\s*/, '');
+          try {
+            return JSON.parse(jsonPart);
+          } catch (error) {
+            console.error('Failed to parse JSON:', error);
+            return null;
+          }
+        }
+      }
+    }
+    const jsonString = getFirstDataObject(response_msg)
     // const jsonString = response_msg.slice(6)
-    console.log("jsonString:", jsonString.trim());
-    const data = JSON.parse(jsonString.trim());
-    const responseText = data?.content?.parts?.[0]?.text?.trim() ?? data?.content?.parts?.response?.error_message;
+    // console.log("jsonString:", jsonString);
+    const data = jsonString;
+    const responseText = data?.content?.parts?.[0]?.text?.trim()
     console.log("responseText:", responseText);
 
     
@@ -101,5 +114,6 @@ export async function POST(req: Request) {
       { error: err.message ?? "Unknown error" },
       { status: 500 }
     );
+ 
   }
 }
