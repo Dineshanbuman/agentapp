@@ -70,8 +70,8 @@ export default function Home() {
             position: 'fixed',
             bottom: 100,
             right: 24,
-            width: 320,
-            maxHeight: 500,
+            width: 640,
+            maxHeight: 1000,
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
@@ -104,16 +104,17 @@ export default function Home() {
                 <Box
                   key={i}
                   sx={{
-                    my: 0.5,
+                    my: 1,
                     textAlign: msg.type === 'user' ? 'right' : 'left',
                   }}
                 >
                   <Typography
                     variant="body2"
                     sx={{
+                      whiteSpace: 'pre-line',
                       display: 'inline-block',
                       px: 1,
-                      py: 0.5,
+                      py: 1,
                       bgcolor: msg.type === 'user' ? '#1976d2' : '#e0e0e0',
                       color: msg.type === 'user' ? '#fff' : '#000',
                       borderRadius: 1,
