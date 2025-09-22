@@ -42,6 +42,22 @@ export default function Home() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  async function handleNewChat() {
+  try {
+    // Call server-side route to clear the cookie
+    await fetch("/api/reset", {
+      method: "POST",
+    });
+
+    // Clear local chat messages
+    setMessages([]);
+
+    console.log("Chat reset and cookie cleared.");
+  } catch (err) {
+    console.error("Failed to reset chat:", err);
+  }
+}
+
   const handleAsk = () => {
     if (!input.trim()) return;
 
@@ -63,7 +79,6 @@ export default function Home() {
       >
         <ChatIcon />
       </Fab>
-
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -71,7 +86,7 @@ export default function Home() {
             bottom: 100,
             right: 24,
             width: 640,
-            maxHeight: 1000,
+            maxHeight: 500,
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
@@ -144,6 +159,16 @@ export default function Home() {
               <SendIcon />
             </Button>
           </Box>
+          <Button
+            variant="outlined"
+            fullWidth
+            size="small"
+            sx={{ m: 1 ,mt:3 , maxWidth:200 ,alignContent:'center', mx: 'auto',display: 'block'}}
+            
+            onClick={handleNewChat}
+            >
+              Start New Chat
+            </Button>
         </Box>
       </Modal>
     </>
