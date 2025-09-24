@@ -48,7 +48,18 @@ export async function POST(req: Request) {
   console.log('session creation started')
   const cookieStore = await cookies(); 
   let sessionId = cookieStore.get('wendySessionChatID')?.value;
-  if (!sessionId) {
+  const is_session_available = await fetch(
+  `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  }
+);
+console.log(is_session_available.status)
+  if (!sessionId && is_session_available.status !== 200) {
     sessionId = uuidv4();
     const session = await fetch(
       `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
