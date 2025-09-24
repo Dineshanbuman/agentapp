@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   }
 );
 console.log(is_session_available.status)
-  if (!sessionId && is_session_available.status !== 200) {
+  if (is_session_available.status !== 200) {
     sessionId = uuidv4();
     const session = await fetch(
       `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,

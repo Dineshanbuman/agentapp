@@ -27,6 +27,8 @@ export default function Home() {
         body: JSON.stringify({ prompt: userMessage }),
       });
       const data = await r.json();
+      
+
 
       // Append bot reply
       setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "No answer." }]);
@@ -116,6 +118,7 @@ export default function Home() {
               </Typography>
             ) : (
               messages.map((msg, i) => (
+                <>
                 <Box
                   key={i}
                   sx={{
@@ -138,8 +141,18 @@ export default function Home() {
                     {msg.text}
                   </Typography>
                 </Box>
+                </>
               ))
             )}
+          { loading && <Box
+                  sx={{
+                    my: 1,
+                    textAlign: 'left',
+                  }}
+                >
+                  <TypingDots/>
+                </Box>
+               }
           </Paper>
 
           <Box display="flex" gap={1}>
@@ -172,5 +185,36 @@ export default function Home() {
         </Box>
       </Modal>
     </>
+  );
+}
+
+
+function TypingDots() {
+  return (
+    <span>
+      <span className="dot">.</span>
+      <span className="dot">.</span>
+      <span className="dot">.</span>
+      <style jsx>{`
+        .dot {
+          animation: blink 1.4s infinite;
+          animation-delay: 0s;
+          font-weight: bold;
+          font-size: 2em;
+        }
+        .dot:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+          0% { opacity: 0.2; }
+          20% { opacity: 1; }
+          100% { opacity: 0.2; }
+        }
+      `}</style>
+    </span>
   );
 }
