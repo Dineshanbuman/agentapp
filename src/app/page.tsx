@@ -5,10 +5,13 @@ import Chat from "./Chat";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../app/context/AuthContext"; // adjust if needed
+import Script from "next/script";
+import ServiceNowChatWidget from "./ServiceNowChatWidget";
 
 export default function Home() {
   const router = useRouter();
   const { email } = useAuth();
+  
 
   useEffect(() => {
     if (!email) {
@@ -21,8 +24,9 @@ export default function Home() {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Chat />
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">       
+        {/* <Chat /> */}
+        <ServiceNowChatWidget />
         <Image
           className="dark:invert"
           src="/image.png"
