@@ -11,7 +11,6 @@ import ServiceNowChatWidget from "./ServiceNowChatWidget";
 export default function Home() {
   const router = useRouter();
   const { email } = useAuth();
-  
 
   useEffect(() => {
     if (!email) {
@@ -24,8 +23,8 @@ export default function Home() {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">       
-        {/* <Chat /> */}
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <Chat />
         <ServiceNowChatWidget />
         <Image
           className="dark:invert"
@@ -47,6 +46,19 @@ export default function Home() {
             Click the icon in lower bottom to proceed
           </li>
         </ol>
+
+        {/* ✅ Contact Customer Care Button */}
+        <button
+          onClick={() =>
+            window.open(
+              "https://wendysdev.service-now.com/$sn-va-web-client-app.do?sysparm_preview_window=false&classic_view=true#/preview?sysparm_preview_mode=false&sysparm_topic=b7a0c080c3a4761061ede815990131b1&sysparm_initial_topic_type=STANDARD&cbTopicId=2eec43e5c3dcf21061ede815990131d0&testable=false&readOnly=false&publishedTopicId=4e5feb61c314361061ede81599013194&unpublishedChanges=false",
+              "_blank"
+            )
+          }
+          className="mt-4 px-6 py-3 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition cursor-pointer"
+        >
+          Contact Customer Care
+        </button>
       </main>
     </div>
   );

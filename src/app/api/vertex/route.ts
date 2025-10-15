@@ -19,37 +19,38 @@ export async function POST(req: Request) {
       client_email: process.env.GCP_CLIENT_EMAIL!,
       client_id: process.env.GCP_CLIENT_ID!,
     },
-    // scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+    scopes: ["https://www.googleapis.com/auth/cloud-platform"],
   });
 
-  // const client = await auth.getClient();
+  const client = await auth.getClient();
   // const tokenResponse = await client.getAccessToken();
 
-  const targetAudience = "https://adktest-new-499439765550.us-central1.run.app";
-  const client = await auth.getIdTokenClient(targetAudience);
-  // const tokenResponse = await client.getAccessToken();
+  // const targetAudience = "https://adktest-new-499439765550.us-central1.run.app";
+  const targetAudience = "https://api.analytics.wendys.com/adkcustomer_v2";
+  // const client = await auth.getIdTokenClient(targetAudience);
+  const tokenResponse = await client.getAccessToken();
 
-  const tokenHeaders:any = await client.getRequestHeaders();
-  console.log(tokenHeaders)
-  const authHeader = typeof tokenHeaders.get === "function"
-  ? tokenHeaders.get("authorization")
-  : tokenHeaders["authorization"]?.value;
+  // const tokenHeaders:any = await client.getRequestHeaders();
+  // console.log(tokenHeaders)
+  // const authHeader = typeof tokenHeaders.get === "function"
+  // ? tokenHeaders.get("authorization")
+  // : tokenHeaders["authorization"]?.value;
   
-  const token = authHeader?.split("Bearer ")[1];
-  console.log(token)
+  // const token = authHeader?.split("Bearer ")[1];
+  // console.log(token)
 
 
-  if (!token) {
-    throw new Error("Failed to obtain OAuth access token");
-  }
+  // if (!token) {
+  //   throw new Error("Failed to obtain OAuth access token");
+  // }
 
-//   // const token = tokenResponse.token;
+  const token = tokenResponse.token;
 
   console.log('session creation started')
   const cookieStore = await cookies(); 
   let sessionId = cookieStore.get('wendySessionChatID')?.value;
   const is_session_available = await fetch(
-  `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
+  `https://api.analytics.wendys.com/adkcustomer_v2/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
   {
     method: "GET",
     headers: {
@@ -58,11 +59,13 @@ export async function POST(req: Request) {
     },
   }
 );
+console.log(is_session_available)
 console.log(is_session_available.status)
+console.log(is_session_available.statusText)
   if (is_session_available.status !== 200) {
     sessionId = uuidv4();
     const session = await fetch(
-      `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
+      `https://api.analytics.wendys.com/adkcustomer_v2/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
       {
         method: "POST",
         headers: {
@@ -82,7 +85,7 @@ console.log(is_session_available.status)
   console.log('session creation completed')
   console.log(sessionId)
   const response = await fetch(
-    "https://adktest-new-499439765550.us-central1.run.app/run",
+    "https://api.analytics.wendys.com/adkcustomer_v2/run",
     {
       method: "POST",
       headers: {
@@ -130,6 +133,8 @@ console.log(is_session_available.status)
 
   
   // return  NextResponse.json(responseText);
+
+  console.log(response)
 
   const response_msg = await response.json();
   let result="";
