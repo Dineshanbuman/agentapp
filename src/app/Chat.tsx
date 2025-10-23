@@ -118,9 +118,8 @@ export default function Home() {
               </Typography>
             ) : (
               messages.map((msg, i) => (
-                <>
                 <Box
-                  key={i}
+                  key={`${i}${msg}`}
                   sx={{
                     my: 1,
                     textAlign: msg.type === 'user' ? 'right' : 'left',
@@ -141,7 +140,6 @@ export default function Home() {
                     {msg.text}
                   </Typography>
                 </Box>
-                </>
               ))
             )}
           { loading && <Box
