@@ -87,7 +87,7 @@ export default function Home() {
             position: 'fixed',
             bottom: 100,
             right: 24,
-            width: 640,
+            width: '90vw',
             maxHeight: 500,
             bgcolor: 'background.paper',
             borderRadius: 2,
