@@ -49,20 +49,20 @@ export async function POST(req: Request) {
   console.log('session creation started')
   const cookieStore = await cookies(); 
   let sessionId = cookieStore.get('wendySessionChatID')?.value;
-  const is_session_available = await fetch(
-  `https://api.analytics.wendys.com/adkcustomer_v2/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
-  {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  }
-);
-console.log(is_session_available)
-console.log(is_session_available.status)
-console.log(is_session_available.statusText)
-  if (is_session_available.status !== 200) {
+//   const is_session_available = await fetch(
+//   `https://api.analytics.wendys.com/adkcustomer_v2/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
+//   {
+//     method: "GET",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//       "Content-Type": "application/json",
+//     },
+//   }
+// );
+// console.log(is_session_available)
+// console.log(is_session_available.status)
+// console.log(is_session_available.statusText)
+  if ( !sessionId) {
     sessionId = uuidv4();
     const session = await fetch(
       `https://api.analytics.wendys.com/adkcustomer_v2/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
