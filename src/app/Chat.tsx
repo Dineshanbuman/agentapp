@@ -31,7 +31,7 @@ export default function Home() {
 
 
       // Append bot reply
-      setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "No answer." }]);
+      setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "Could you please respond again." }]);
     } catch (err) {
       console.error("Error calling API:", err);
       setMessages((prev) => [...prev, { type: 'bot', text: "Something went wrong." }]);
