@@ -27,8 +27,6 @@ export default function Home() {
         body: JSON.stringify({ prompt: userMessage }),
       });
       const data = await r.json();
-      
-
 
       // Append bot reply
       setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "Could you please respond again." }]);
