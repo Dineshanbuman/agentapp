@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
 import { GoogleAuth } from "google-auth-library";
-import { v4 as uuidv4 } from 'uuid';
-import { cookies } from 'next/headers';
+import { v4 as uuidv4 } from "uuid";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  // try {
-  // Get JSON body from client request
   const { prompt } = await req.json();
-  console.log(prompt)
+  console.log(prompt);
 
-  // Authenticate with service account
+  // === Token generation (unchanged) ===
   const auth = new GoogleAuth({
     credentials: {
       type: "service_account",
@@ -19,143 +17,97 @@ export async function POST(req: Request) {
       client_email: process.env.GCP_CLIENT_EMAIL!,
       client_id: process.env.GCP_CLIENT_ID!,
     },
-    // scopes: ["https://www.googleapis.com/auth/cloud-platform"],
   });
 
-  // const client = await auth.getClient();
-  // const tokenResponse = await client.getAccessToken();
-
-  const targetAudience = "https://adktest-new-499439765550.us-central1.run.app";
+  const targetAudience = "https://adktest-cicd-499439765550.us-central1.run.app";
   const client = await auth.getIdTokenClient(targetAudience);
-  // const tokenResponse = await client.getAccessToken();
+  const tokenHeaders: any = await client.getRequestHeaders();
+  console.log(tokenHeaders);
 
-  const tokenHeaders:any = await client.getRequestHeaders();
-  console.log(tokenHeaders)
-  const authHeader = typeof tokenHeaders.get === "function"
-  ? tokenHeaders.get("authorization")
-  : tokenHeaders["authorization"]?.value;
-  
+  const authHeader =
+    typeof tokenHeaders.get === "function"
+      ? tokenHeaders.get("authorization")
+      : tokenHeaders["authorization"]?.value;
+
   const token = authHeader?.split("Bearer ")[1];
-  console.log(token)
-
+  console.log(token);
 
   if (!token) {
     throw new Error("Failed to obtain OAuth access token");
   }
+  // === End token section ===
 
-//   // const token = tokenResponse.token;
+  console.log("session creation started");
+  const cookieStore = await cookies();
+  let sessionId = cookieStore.get("wendySessionChatID")?.value;
+  console.log(sessionId);
 
-  console.log('session creation started')
-  const cookieStore = await cookies(); 
-  let sessionId = cookieStore.get('wendySessionChatID')?.value;
-  const is_session_available = await fetch(
-  `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
-  {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  }
-);
-console.log(is_session_available.status)
-  if (is_session_available.status !== 200) {
+  if (!sessionId) {
     sessionId = uuidv4();
     const session = await fetch(
-      `https://adktest-new-499439765550.us-central1.run.app/apps/wendys_agent_new6/users/user_soundaryatest/sessions/${sessionId}`,
+      `${targetAudience}/apps/agent_adk_chatbot/users/user_soundaryatest/sessions/${sessionId}`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({"state": {"preferred_language": "English", "visit_count": 5}}),
-      });
-
-      cookieStore.set('wendySessionChatID', sessionId, 
-        { httpOnly: true, 
-          secure: process.env.NODE_ENV === 'production', 
-          maxAge: 60 * 60 * 24 * 7, // 7 days 
-          path: '/', });
+        body: JSON.stringify({
+          state: { preferred_language: "English", visit_count: 5 },
+        }),
+      }
+    );
+    console.log("Session creation status:", session.status);
+    const sessionResponse = await session.text();
+    console.log("Session creation response:", sessionResponse);
   }
-  
-  console.log('session creation completed')
-  console.log(sessionId)
-  const response = await fetch(
-    "https://adktest-new-499439765550.us-central1.run.app/run",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+
+  console.log("session creation completed", sessionId);
+
+  const response = await fetch(`${targetAudience}/run`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      app_name: "agent_adk_chatbot",
+      user_id: "user_soundaryatest",
+      session_id: sessionId,
+      new_message: {
+        role: "user",
+        parts: [{ text: prompt }],
       },
-      body: JSON.stringify({
-        "app_name": "wendys_agent_new6",
-        "user_id": "user_soundaryatest",
-        "session_id": sessionId,
-        "new_message": {
-          "role": "user",
-          "parts": [{
-            "text": prompt
-      }]
-  },
-  "streaming": false
-  }),
-    }
-  );
-  console.log('post method completed')
-  // const response_msg = await response.text();
-  // function getFirstDataObject(inputString: string) {
-  //   const lines = inputString.split(/\r?\n/);
-  //   for (const line of lines) {
-  //     const trimmed = line.trim();
-  //     if (trimmed.startsWith('data:')) {
-  //       const jsonPart = trimmed.replace(/^data:\s*/, '');
-  //       try {
-  //         return JSON.parse(jsonPart);
-  //       } catch (error) {
-  //         console.error('Failed to parse JSON:', error);
-  //         return null;
-  //       }
-  //     }
-  //   }
-  // }
+      streaming: false,
+    }),
+  });
 
-  // const jsonString = getFirstDataObject(response_msg)
-  // const jsonString = response_msg.slice(6)
-  // console.log("jsonString:", jsonString);
-  // const data = jsonString;
-  // const responseText = data?.content?.parts?.[0]?.text?.trim()
-  // console.log("responseText:", responseText);
-
-  
-  // return  NextResponse.json(responseText);
-
+  console.log("post method completed");
   const response_msg = await response.json();
-  let result="";
-  console.log('parsing response')
   console.log(response_msg)
-  for (const item of response_msg) {
-    console.log(item)
-    console.log(item?.content?.parts?.[0]?.text)
-    const text = item?.content?.parts?.[0]?.text;
-    if (text) {
-      // result += text.trim() + "\n"; // only push if text exists
-      result = text.trim() + "\n"; // only push if text exists
+
+  let result = "";
+  console.log("parsing response");
+  if (Array.isArray(response_msg)) {
+    for (const item of response_msg) {
+      const text = item?.content?.parts?.[0]?.text;
+      if (text) result = text.trim() + "\n";
     }
+  } else {
+    const text = response_msg?.content?.parts?.[0]?.text;
+    if (text) result = text.trim() + "\n";
   }
-  console.log("parsing completed")
-  console.log(result)
 
-  return NextResponse.json(result);
-  // return NextResponse.json({ messages: result });
+  console.log("parsing completed", result);
 
-//   } catch (err: any) {
-//     console.error("Vertex API error:", err);
-//     return NextResponse.json(
-//       { error: err.message ?? "Unknown error" },
-//       { status: 500 }
-//     );
- 
-//   }
+  // ✅ Return response + set cookie here
+  const res = NextResponse.json(result);
+  res.cookies.set("wendySessionChatID", sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
+    path: "/",
+  });
+
+  return res;
 }
