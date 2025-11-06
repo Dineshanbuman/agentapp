@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const targetAudience = "https://adktest-cicd-499439765550.us-central1.run.app";
+  const targetAudience = "https://adktest-demo-499439765550.us-central1.run.app";
   const client = await auth.getIdTokenClient(targetAudience);
   const tokenHeaders: any = await client.getRequestHeaders();
   console.log(tokenHeaders);

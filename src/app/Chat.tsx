@@ -13,7 +13,7 @@ import {
 import ChatIcon from '@mui/icons-material/Chat';
 import SendIcon from '@mui/icons-material/Send';
 
-export default function Home() {
+export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<{ type: 'user' | 'bot'; text: string }[]>([]);
   const [input, setInput] = useState('');
@@ -27,16 +27,12 @@ export default function Home() {
         body: JSON.stringify({ prompt: userMessage }),
       });
       const data = await r.json();
-      
 
-
-      // Append bot reply
       setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "No answer." }]);
     } catch (err) {
       console.error("Error calling API:", err);
       setMessages((prev) => [...prev, { type: 'bot', text: "Something went wrong." }]);
     } finally {
-      // Always re-enable input
       setLoading(false);
     }
   }
@@ -45,20 +41,14 @@ export default function Home() {
   const handleClose = () => setOpen(false);
 
   async function handleNewChat() {
-  try {
-    // Call server-side route to clear the cookie
-    await fetch("/api/reset", {
-      method: "POST",
-    });
-
-    // Clear local chat messages
-    setMessages([]);
-
-    console.log("Chat reset and cookie cleared.");
-  } catch (err) {
-    console.error("Failed to reset chat:", err);
+    try {
+      await fetch("/api/reset", { method: "POST" });
+      setMessages([]);
+      console.log("Chat reset and cookie cleared.");
+    } catch (err) {
+      console.error("Failed to reset chat:", err);
+    }
   }
-}
 
   const handleAsk = () => {
     if (!input.trim()) return;
@@ -67,20 +57,28 @@ export default function Home() {
     setMessages((prev) => [...prev, { type: 'user', text: userMessage }]);
     setInput('');
     setLoading(true);
-
     sendMessage(userMessage);
   };
 
   return (
     <>
+      {/* Floating chat icon */}
       <Fab
-        color="primary"
         aria-label="chat"
         onClick={handleOpen}
-        sx={{ position: 'fixed', bottom: 24, right: 24 }}
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          bgcolor: '#CD2028', // Wendy’s Red
+          color: '#fff',
+          '&:hover': { bgcolor: '#A32539' },
+        }}
       >
         <ChatIcon />
       </Fab>
+
+      {/* Chat modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
@@ -88,107 +86,129 @@ export default function Home() {
             bottom: 100,
             right: 24,
             width: 640,
-            maxHeight: 500,
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 2,
+            maxHeight: 600,
+            bgcolor: '#FFFFFF',
+            borderRadius: 3,
+            boxShadow: '0px 6px 16px rgba(0,0,0,0.2)',
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Chat Support
+          {/* Header */}
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              fontWeight: 700,
+              color: '#FFFFFF',
+              bgcolor: '#002B49', // Wendy’s Blue
+              p: 1.5,
+              borderRadius: '8px 8px 0 0',
+              textAlign: 'center',
+            }}
+          >
+            Customer Care Chat
           </Typography>
 
+          {/* Chat message area */}
           <Paper
-            elevation={1}
+            elevation={0}
             sx={{
               flex: 1,
               overflowY: 'auto',
               mb: 1,
-              p: 1,
-              bgcolor: '#f5f5f5',
-              borderRadius: 1,
+              p: 2,
+              bgcolor: '#F9F9F9',
+              borderRadius: 2,
+              border: '1px solid #E2E2E2',
+              minHeight: 200,
+              maxHeight: 450,
+              scrollBehavior: 'smooth',
             }}
           >
-            {messages.length === 0 ? (
-              <Typography variant="body2" color="text.secondary">
-                Start the conversation...
-              </Typography>
-            ) : (
-              messages.map((msg, i) => (
-                <>
-                <Box
-                  key={i}
+            {messages.map((msg, i) => (
+              <Box
+                key={i}
+                sx={{
+                  my: 1,
+                  textAlign: msg.type === 'user' ? 'right' : 'left',
+                }}
+              >
+                <Typography
+                  variant="body2"
                   sx={{
-                    my: 1,
-                    textAlign: msg.type === 'user' ? 'right' : 'left',
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: 2,
+                    display: 'inline-block',
+                    maxWidth: '75%',
+                    bgcolor: msg.type === 'user' ? '#CD2028' : '#029CD4',
+                    color: '#fff',
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      whiteSpace: 'pre-line',
-                      display: 'inline-block',
-                      px: 1,
-                      py: 1,
-                      bgcolor: msg.type === 'user' ? '#1976d2' : '#e0e0e0',
-                      color: msg.type === 'user' ? '#fff' : '#000',
-                      borderRadius: 1,
-                    }}
-                  >
-                    {msg.text}
-                  </Typography>
-                </Box>
-                </>
-              ))
+                  {msg.text}
+                </Typography>
+              </Box>
+            ))}
+
+            {/* Typing indicator */}
+            {loading && (
+              <Box sx={{ my: 1, textAlign: 'left' }}>
+                <TypingDots />
+              </Box>
             )}
-          { loading && <Box
-                  sx={{
-                    my: 1,
-                    textAlign: 'left',
-                  }}
-                >
-                  <TypingDots/>
-                </Box>
-               }
           </Paper>
 
-          <Box display="flex" gap={1}>
+          {/* Input area */}
+          <Box display="flex" gap={1} p={2} pt={0}>
             <TextField
               size="small"
               fullWidth
               variant="outlined"
               placeholder="Type a message..."
               value={input}
-              disabled={loading}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleAsk();
-              }}
+              onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
             />
-            <Button variant="contained" onClick={handleAsk} disabled={loading}>
+            <Button
+              variant="contained"
+              onClick={handleAsk}
+              sx={{
+                bgcolor: '#CD2028',
+                '&:hover': { bgcolor: '#A32539' },
+              }}
+            >
               <SendIcon />
             </Button>
           </Box>
+
+          {/* Start New Chat */}
           <Button
             variant="outlined"
             fullWidth
             size="small"
-            sx={{ m: 1 ,mt:3 , maxWidth:200 ,alignContent:'center', mx: 'auto',display: 'block'}}
-            
             onClick={handleNewChat}
-            >
-              Start New Chat
-            </Button>
+            sx={{
+              mb: 2,
+              maxWidth: 200,
+              mx: 'auto',
+              color: '#029CD4',
+              borderColor: '#029CD4',
+              '&:hover': {
+                borderColor: '#027BB0',
+                color: '#027BB0',
+              },
+            }}
+          >
+            Start New Chat
+          </Button>
         </Box>
       </Modal>
     </>
   );
 }
 
-
+/* Typing animation */
 function TypingDots() {
   return (
     <span>
@@ -200,7 +220,8 @@ function TypingDots() {
           animation: blink 1.4s infinite;
           animation-delay: 0s;
           font-weight: bold;
-          font-size: 2em;
+          font-size: 1.6em;
+          color: #CD2028; /* Wendy's red */
         }
         .dot:nth-child(2) {
           animation-delay: 0.2s;

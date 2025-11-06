@@ -3,11 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Wendy’s Brand Colors */
+  --wendys-red: #CD2028;
+  --wendys-dark-red: #A32539;
+  --wendys-blue: #029CD4;
+  --wendys-gray-10: #252525;
+  --wendys-gray-7: #616161;
+  --wendys-gray-2: #E2E2E2;
+  --wendys-white: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-wendys-red: var(--wendys-red);
+  --color-wendys-dark-red: var(--wendys-dark-red);
+  --color-wendys-blue: var(--wendys-blue);
+  --color-wendys-gray-10: var(--wendys-gray-10);
+  --color-wendys-gray-7: var(--wendys-gray-7);
+  --color-wendys-gray-2: var(--wendys-gray-2);
+  --color-wendys-white: var(--wendys-white);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -22,5 +39,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
