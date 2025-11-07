@@ -28,10 +28,10 @@ export default function ChatWidget() {
       });
       const data = await r.json();
 
-      setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "No answer." }]);
+      setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "Can you please come again" }]);
     } catch (err) {
       console.error("Error calling API:", err);
-      setMessages((prev) => [...prev, { type: 'bot', text: "Something went wrong." }]);
+      setMessages((prev) => [...prev, { type: 'bot', text: "Can you please come again." }]);
     } finally {
       setLoading(false);
     }
