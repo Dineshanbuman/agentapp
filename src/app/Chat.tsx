@@ -175,6 +175,7 @@ export default function ChatWidget() {
             <Button
               variant="contained"
               onClick={handleAsk}
+              disabled={loading}
               sx={{
                 bgcolor: '#CD2028',
                 '&:hover': { bgcolor: '#A32539' },
