@@ -140,7 +140,9 @@ export default function ChatWidget() {
                     px: 1.5,
                     py: 1,
                     borderRadius: 2,
-                    display: 'inline-block',
+                    display: 'block', // make each message block-level
+                    whiteSpace: 'pre-line', // preserve line breaks (\n)
+                    // display: 'inline-block',
                     maxWidth: '75%',
                     bgcolor: msg.type === 'user' ? '#CD2028' : '#029CD4',
                     color: '#fff',
