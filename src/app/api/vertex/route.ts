@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const targetAudience = "https://adktest-demo-499439765550.us-central1.run.app";
+  const targetAudience = "https://adk-customer-chatbot-phase2-499439765550.us-central1.run.app";
   const client = await auth.getIdTokenClient(targetAudience);
   const tokenHeaders: any = await client.getRequestHeaders();
   console.log(tokenHeaders);
@@ -86,17 +86,17 @@ export async function POST(req: Request) {
   const response_msg = await response.json();
   console.log(response_msg)
 
-  let result = "";
+  let result = [];
   console.log("parsing response");
   if (Array.isArray(response_msg)) {
-    for (const item of response_msg) {
-      const text = item?.content?.parts?.[0]?.text;
-      if (text) result = text.trim() + "\n";
-    }
-  } else {
-    const text = response_msg?.content?.parts?.[0]?.text;
-    if (text) result = text.trim() + "\n";
+  for (const item of response_msg) {
+    const text = item?.content?.parts?.[0]?.text;
+    if (text) result.push(text.trim() + "\n");
   }
+} else {
+  const text = response_msg?.content?.parts?.[0]?.text;
+    if (text) result.push(text.trim() + "\n");
+}
 
   console.log("parsing completed", result);
 

@@ -14,28 +14,49 @@ import ChatIcon from '@mui/icons-material/Chat';
 import SendIcon from '@mui/icons-material/Send';
 
 export default function ChatWidget() {
+  type ChatMessage = { type: 'user' | 'bot'; text: string };
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<{ type: 'user' | 'bot'; text: string }[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function sendMessage(userMessage: string) {
-    try {
-      const r = await fetch("/api/vertex", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userMessage }),
-      });
-      const data = await r.json();
+  try {
+    const r = await fetch("/api/vertex", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: userMessage }),
+    });
 
-      setMessages((prev) => [...prev, { type: 'bot', text: String(data) || "Can you please come again" }]);
-    } catch (err) {
-      console.error("Error calling API:", err);
-      setMessages((prev) => [...prev, { type: 'bot', text: "Can you please come again." }]);
-    } finally {
-      setLoading(false);
-    }
+    const data = await r.json();
+
+    // Ensure response is always an array
+   const botMessages: string[] = Array.isArray(data)
+  ? data.map((msg: any) =>
+      typeof msg === "string" ? msg : msg?.text || JSON.stringify(msg)
+    )
+  : [typeof data === "string" ? data : data?.text || JSON.stringify(data)];
+
+    // Append each bot message to the chat
+   setMessages((prev) => [
+  ...prev,
+  ...botMessages.map((text) => ({
+    type: 'bot' as const,
+    text: text || "Can you please come again",
+  })),
+]);
+
+
+  } catch (err) {
+    console.error("Error calling API:", err);
+    setMessages((prev) => [
+      ...prev,
+      { type: 'bot', text: "Can you please come again." },
+    ]);
+  } finally {
+    setLoading(false);
   }
+}
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
